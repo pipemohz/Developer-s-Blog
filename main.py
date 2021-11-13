@@ -79,7 +79,7 @@ class Commentary(db.Model):
     post = relationship("BlogPost", back_populates="commentaries")
     post_id = db.Column(db.Integer, db.ForeignKey("blog_posts.id"))
 
-# db.create_all()
+db.create_all()
 
 
 def create_user(form: RegisterForm):
