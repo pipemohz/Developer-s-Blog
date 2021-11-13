@@ -1,15 +1,21 @@
-from flask import Flask, render_template, redirect, url_for, flash, abort
+import os
+from datetime import datetime 
+from flask import Flask, render_template, redirect, url_for, flash, request, abort
 from flask_bootstrap import Bootstrap
 from flask_ckeditor import CKEditor
-from datetime import date, datetime
+from datetime import date
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
-from flask_login import UserMixin, login_user, LoginManager, current_user, logout_user
-from forms import CommentForm, CreatePostForm, LoginForm, RegisterForm
+from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
+from forms import CreatePostForm, RegisterForm, LoginForm, CommentForm
 from flask_gravatar import Gravatar
+
+from flask_wtf import FlaskForm
+from wtforms import StringField, SubmitField, SelectField, PasswordField
+from wtforms.validators import DataRequired, Email
+
 from functools import wraps
-import os
 
 year = datetime.now().year
 app = Flask(__name__)
@@ -18,8 +24,7 @@ ckeditor = CKEditor(app)
 Bootstrap(app)
 
 # CONNECT TO DB
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///blog.db')
-
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL", "sqlite:///blog.db")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
