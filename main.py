@@ -1,27 +1,29 @@
-from enum import unique
-from operator import ge
-from typing import List
 from flask import Flask, render_template, redirect, url_for, flash, abort
-from flask.globals import request, session
 from flask_bootstrap import Bootstrap
 from flask_ckeditor import CKEditor
-from datetime import date
-from flask_wtf import form
+from datetime import date, datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import query, relationship
-from flask_login import UserMixin, login_manager, login_user, LoginManager, login_required, current_user, logout_user
+from sqlalchemy.orm import relationship
+from flask_login import UserMixin, login_user, LoginManager, current_user, logout_user
 from forms import CommentForm, CreatePostForm, LoginForm, RegisterForm
 from flask_gravatar import Gravatar
 from functools import wraps
+import os
 
+year = datetime.now().year
 app = Flask(__name__)
-app.config['SECRET_KEY'] = '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 ckeditor = CKEditor(app)
 Bootstrap(app)
 
 # CONNECT TO DB
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///blog.db'
+if os.environ.get('DATABASE_URL') != None:
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+else:
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
+        'DATABASE_URL', 'sqlite:///blog.db')
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -138,7 +140,7 @@ def load_user(user_id):
 @app.route('/')
 def get_all_posts():
     posts = BlogPost.query.all()
-    return render_template("index.html", all_posts=posts)
+    return render_template("index.html", all_posts=posts, year=year)
 
 
 @app.route('/register', methods=['GET', 'POST'])
